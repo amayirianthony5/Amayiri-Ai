@@ -1,2 +1,21 @@
 # Amayiri-Ai
 AMAYIRI AI Video Generation Website
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AMAYIRI AI — 60-second video studio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f8ff;color:#14213d;font:15px system-ui,sans-serif}.wrap{max-width:850px;margin:40px auto;padding:18px}.brand{font-size:22px;font-weight:850;color:#1e56d8}.card{background:white;border:1px solid #dfe8f7;border-radius:20px;padding:25px;margin-top:20px;box-shadow:0 10px 30px #1d4b8a0b}h1{font-size:34px;margin:8px 0}p{color:#64748b;line-height:1.55}label{display:block;font-weight:700;margin:18px 0 7px}textarea,select,input{width:100%;padding:13px;border:1px solid #d9e3f2;border-radius:11px;font:inherit}textarea{min-height:130px}button{background:#2463eb;color:white;border:0;border-radius:11px;padding:13px 18px;font-weight:750;margin-top:16px;cursor:pointer}.status{padding:14px;background:#eff5ff;border-radius:12px;margin-top:16px;white-space:pre-wrap}.small{font-size:12px;color:#74839a}.result video{width:100%;margin-top:16px;border-radius:14px;background:#111}.pill{display:inline-block;background:#eaf2ff;color:#245bca;padding:6px 10px;border-radius:30px;font-size:12px;font-weight:700}
+</style></head><body><div class="wrap">
+<div class="brand">◈ AMAYIRI AI <span class="pill">60-SECOND MOVIE MAKER</span></div>
+<div class="card"><p class="small">YOUR CREATIVE STUDIO</p><h1>Turn your idea into a one-minute video.</h1><p>Describe your story. AMAYIRI AI creates two 30-second cinematic scenes and joins them into one 60-second MP4.</p>
+<label>Describe your video or movie idea</label><textarea id="prompt" placeholder="Example: A young Nigerian journalist discovers a secret hidden inside an abandoned hotel in Lagos..."></textarea>
+<label>Video format</label><select id="ratio"><option value="16:9">Landscape 16:9 — YouTube</option><option value="9:16">Portrait 9:16 — Reels, TikTok, Shorts</option></select>
+<label>Demo account ID <span class="small">(temporary until sign-in is added)</span></label><input id="user" placeholder="Enter a unique ID, e.g. amayiri-demo-001">
+<button id="go">Generate my 60-second video</button><div id="status" class="status">One free video per day is the planned limit. Provider generation costs apply.</div><div id="result" class="result"></div>
+</div><p class="small">Prototype integration. A server API key and paid Kling credits are required. Do not share your API key.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);let timer;
+$('go').onclick=async()=>{clearInterval(timer);$('result').innerHTML='';$('go').disabled=true;$('status').textContent='Submitting your request…';
+try{const r=await fetch('/api/videos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:$('prompt').value,aspectRatio:$('ratio').value,userId:$('user').value})});const d=await r.json();if(!r.ok)throw Error(d.error||'Could not start generation');$('status').textContent=d.message;poll(d.id)}catch(e){$('status').textContent=e.message;$('go').disabled=false}};
+async function poll(id){try{const r=await fetch('/api/videos/'+id),d=await r.json();$('status').textContent=d.message||d.status;if(d.status==='completed'){const v=document.createElement('video');v.controls=true;v.src=d.videoUrl;const a=document.createElement('a');a.href=d.videoUrl;a.download='amayiri-ai-60-second-video.mp4';a.textContent='Download your MP4';a.style.display='block';a.style.marginTop='12px';$('result').append(v,a);$('go').disabled=false;return}if(d.status==='failed'){$('go').disabled=false;return}timer=setTimeout(()=>poll(id),15000)}catch(e){$('status').textContent='Could not check progress: '+e.message;$('go').disabled=false}}
+</script></body></html>
